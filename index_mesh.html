@@ -17,7 +17,7 @@
     <script>
       async function loadImageAndPredict(file) {
         // Load the TensorFlow.js model
-        const model = await tf.loadLayersModel(
+        const model = await tf.loadGraphModel(
           "https://raw.githubusercontent.com/gaiborjosue/melanoma_detection/website/meshOut/model.json"
         );
 
