@@ -17,8 +17,8 @@
     <script>
       async function loadImageAndPredict(file) {
         // Load the TensorFlow.js model
-        const model = await tf.loadGraphModel(
-          "https://raw.githubusercontent.com/gaiborjosue/melanoma_detection/website/meshOut/model.json"
+        const model = await tf.loadLayersModel(
+          "https://raw.githubusercontent.com/gaiborjosue/melanoma_detection/website/meshOutLayers/model.json"
         );
 
         // Create an img element and set its source to the provided file
@@ -35,7 +35,6 @@
             .fromPixels(img)
             .resizeNearestNeighbor([150, 150]) // Resize the image
             .toFloat()
-            .div(tf.scalar(255.0))
             .expandDims();
 
           // Make the prediction
