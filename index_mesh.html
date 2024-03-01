@@ -34,7 +34,6 @@
           let tensor = tf.browser
             .fromPixels(img)
             .resizeNearestNeighbor([150, 150]) // Resize the image
-            .toFloat()
             .expandDims();
 
           // Make the prediction
