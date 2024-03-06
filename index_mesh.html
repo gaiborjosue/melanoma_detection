@@ -13,7 +13,7 @@
   <body>
     <div id="image-container"></div>
     <div id="dropzone">Drop an image here</div>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8/dist/tf.min.js "></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8/dist/tf.min.js"></script>
     <script>
       async function loadImageAndPredict(file) {
         // Load the TensorFlow.js model
@@ -34,6 +34,7 @@
           let tensor = tf.browser
             .fromPixels(img)
             .resizeNearestNeighbor([150, 150]) // Resize the image
+            .div(tf.scalar(255)) // Normalize the image
             .expandDims();
 
           // Make the prediction
