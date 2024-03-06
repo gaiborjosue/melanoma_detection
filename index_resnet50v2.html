@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Prediction</title>
+    <style>
+      #dropzone {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="image-container"></div>
+    <div id="dropzone">Drop an image here</div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8/dist/tf.min.js "></script>
+    <script>
+      async function loadImageAndPredict(file) {
+        // Load the TensorFlow.js model
+        const model = await tf.loadLayersModel(
+          "https://raw.githubusercontent.com/shkimmie-umb/melanoma_detection/master/meshnet_out/ISIC2020_aug_ResNet50_150h_150w_None/model.json"
+        );
+
+        tf.setBackend("webgl");
+
+        // Create an img element and set its source to the provided file
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+
+        // Wait for the image to load
+        img.onload = async () => {
+          // Add the image to the DOM
+          document.getElementById("image-container").appendChild(img);
+
+          // Preprocess the image and predict
+          let tensor = tf.browser
+            .fromPixels(img)
+            .resizeNearestNeighbor([150, 150]) // Resize the image
+            .div(255.0) // Normalize the image
+            .expandDims();
+
+          
+          // Make the prediction
+          let prediction = await model.predict(tensor).dataSync();
+        };
+
+        img.onerror = function () {
+          console.error("Error loading the image.");
+        };
+      }
+
+      const dropzone = document.getElementById("dropzone");
+      dropzone.ondragover = (event) => {
+        event.preventDefault();
+        dropzone.style.backgroundColor = "#eee";
+      };
+      dropzone.ondragleave = () => {
+        dropzone.style.backgroundColor = "#fff";
+      };
+      dropzone.ondrop = (event) => {
+        event.preventDefault();
+        dropzone.style.backgroundColor = "#fff";
+        const file = event.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          loadImageAndPredict(file);
+        }
+      };
+    </script>
+  </body>
+</html>
