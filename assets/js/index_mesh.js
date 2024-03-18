@@ -61,18 +61,19 @@ dropzone.ondrop = (event) => {
   }
 };
 
+
 const takePictureButton = document.getElementById("take-picture");
 takePictureButton.onclick = () => {
   // Check if the browser supports the MediaDevices API
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // Request access to the rear camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
       .then((stream) => {
         // Create a video element to display the camera stream
         const video = document.createElement("video");
         video.srcObject = stream;
         video.autoplay = true;
-        video.width = 400;
-        video.height = 400;
+        video.playsInline = true; // Add this line to ensure video plays inline on mobile devices
 
         // Create a container for the video and capture button
         const videoContainer = document.createElement("div");
@@ -80,13 +81,15 @@ takePictureButton.onclick = () => {
 
         // Create a canvas element to capture the image
         const canvas = document.createElement("canvas");
-        canvas.width = video.width;
-        canvas.height = video.height;
 
         // Create a capture button
         const captureButton = document.createElement("button");
         captureButton.textContent = "Capture";
         captureButton.onclick = () => {
+          // Set the canvas dimensions to match the video dimensions
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
           // Draw the current video frame onto the canvas
           canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
 
