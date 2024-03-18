@@ -61,72 +61,93 @@ dropzone.ondrop = (event) => {
   }
 };
 
-
 const takePictureButton = document.getElementById("take-picture");
-takePictureButton.onclick = () => {
-  // Check if the browser supports the MediaDevices API
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    // Request access to the rear camera
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-      .then((stream) => {
-        // Create a video element to display the camera stream
-        const video = document.createElement("video");
-        video.srcObject = stream;
-        video.autoplay = true;
-        video.playsInline = true; // Add this line to ensure video plays inline on mobile devices
+const mobileTakePictureButton = document.getElementById("mobile-take-picture");
+const mobileCapture = document.getElementById("mobile-capture");
 
-        // Create a container for the video and capture button
-        const videoContainer = document.createElement("div");
-        videoContainer.classList.add("video-container");
+// Check if the browser is running on a mobile device
+const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // Create a canvas element to capture the image
-        const canvas = document.createElement("canvas");
+if (isMobileDevice) {
+  mobileTakePictureButton.onclick = () => {
+    // Trigger the file input click event
+    mobileCapture.click();
+  };
 
-        // Create a capture button
-        const captureButton = document.createElement("button");
-        captureButton.textContent = "Capture";
-        captureButton.onclick = () => {
-          // Set the canvas dimensions to match the video dimensions
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+  mobileCapture.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      loadImageAndPredict(file, "capture-image-container", "capture-result-container");
+      event.target.value = ""; // Clear the file input
+    }
+  });
+} else {
+  
+  takePictureButton.onclick = () => {
+    // Check if the browser supports the MediaDevices API
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Request access to the rear camera
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+          // Create a video element to display the camera stream
+          const video = document.createElement("video");
+          video.srcObject = stream;
+          video.autoplay = true;
+          video.playsInline = true; // Add this line to ensure video plays inline on mobile devices
 
-          // Draw the current video frame onto the canvas
-          canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+          // Create a container for the video and capture button
+          const videoContainer = document.createElement("div");
+          videoContainer.classList.add("video-container");
 
-          // Convert the canvas to a data URL
-          const dataURL = canvas.toDataURL("image/png");
+          // Create a canvas element to capture the image
+          const canvas = document.createElement("canvas");
 
-          // Create an image element and set its source to the data URL
-          const img = new Image();
-          img.src = dataURL;
+          // Create a capture button
+          const captureButton = document.createElement("button");
+          captureButton.textContent = "Capture";
+          captureButton.onclick = () => {
+            // Set the canvas dimensions to match the video dimensions
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
 
-          // Call the loadImageAndPredict function with the captured image
-          img.onload = () => {
-            loadImageAndPredict(dataURLToBlob(dataURL), "capture-image-container", "capture-result-container");
+            // Draw the current video frame onto the canvas
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas to a data URL
+            const dataURL = canvas.toDataURL("image/png");
+
+            // Create an image element and set its source to the data URL
+            const img = new Image();
+            img.src = dataURL;
+
+            // Call the loadImageAndPredict function with the captured image
+            img.onload = () => {
+              loadImageAndPredict(dataURLToBlob(dataURL), "capture-image-container", "capture-result-container");
+            };
+
+            // Stop the camera stream
+            stream.getTracks().forEach((track) => track.stop());
+
+            // Remove the video container and its contents from the DOM
+            videoContainer.remove();
           };
 
-          // Stop the camera stream
-          stream.getTracks().forEach((track) => track.stop());
+          // Add the video and capture button to the video container
+          videoContainer.appendChild(video);
+          videoContainer.appendChild(captureButton);
 
-          // Remove the video container and its contents from the DOM
-          videoContainer.remove();
-        };
-
-        // Add the video and capture button to the video container
-        videoContainer.appendChild(video);
-        videoContainer.appendChild(captureButton);
-
-        // Add the video container below the "Take Picture" button
-        const takePictureFeature = document.querySelector(".feature:last-child");
-        takePictureFeature.appendChild(videoContainer);
-      })
-      .catch((error) => {
-        console.error("Error accessing the camera:", error);
-      });
-  } else {
-    console.error("getUserMedia is not supported in this browser.");
+          // Add the video container below the "Take Picture" button
+          const takePictureFeature = document.querySelector(".feature:last-child");
+          takePictureFeature.appendChild(videoContainer);
+        })
+        .catch((error) => {
+          console.error("Error accessing the camera:", error);
+        });
+    } else {
+      console.error("getUserMedia is not supported in this browser.");
+    }
   }
-};
+}
 
 // Helper function to convert a data URL to a Blob
 function dataURLToBlob(dataURL) {
