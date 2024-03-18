@@ -145,6 +145,14 @@ header .logo:hover {
   transform: scale(1.05);
 }
 
+.mobile-capture {
+  display: none;
+}
+
+input[type="file"][name="image"] {
+  display: none;
+}
+
 @media screen and (max-width: 600px) {
   .features {
     gap: 10px;
@@ -154,6 +162,10 @@ header .logo:hover {
     width: 100%;
     content: "Upload Image";
     font-size: 18px;
+  }
+
+  input[type="file"][name="image"] {
+    display: block;
   }
   
 }
