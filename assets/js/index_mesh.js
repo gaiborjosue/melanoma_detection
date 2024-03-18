@@ -65,7 +65,7 @@ const takePictureButton = document.getElementById("take-picture");
 takePictureButton.onclick = () => {
   // Check if the browser supports the MediaDevices API
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
       .then((stream) => {
         // Create a video element to display the camera stream
         const video = document.createElement("video");
